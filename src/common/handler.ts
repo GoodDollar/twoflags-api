@@ -10,16 +10,19 @@ export const _handleRequest = (handlers: { [key: string]: HTTPHandler }) =>
 
     if (url.pathname === '/status') {
       return new Response(
-        JSON.stringify({ api: 'twoflags', version: '1.0.0' }),
+        JSON.stringify({ api: 'twoflags!', version: '1.0.0' }),
         withStatus(200, { 'Content-Type': 'application/json' })
       )
     }
 
     // From here on all endpoints must be secured
     const { valid, payload } = await isValidAPIKey(request)
-    const user: any = await ACCOUNTS.get(payload.sub, 'json')
+    if (!valid) {
+      return new Response(null, withStatus(403))
+    }
 
-    if (!valid || !user) {
+    const user: any = await ACCOUNTS.get(payload.sub, 'json')
+    if (!user) {
       return new Response(null, withStatus(403))
     }
 
