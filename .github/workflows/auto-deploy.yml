@@ -1,0 +1,30 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-api:
+    name: Deploying twoflags
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14
+    - run: yarn
+    - run: yarn build:api
+    - uses: cloudflare/wrangler-action@2.0.0
+      with:
+        apiToken: ${{ secrets.CF_API_TOKEN }}
+        accountId: ${{ secrets.CF_ACCOUNT_ID }}
+        command: publish --env api
+    - run: yarn build:resolver
+    - uses: cloudflare/wrangler-action@2.0.0
+      with:
+        apiToken: ${{ secrets.CF_API_TOKEN }}
+        accountId: ${{ secrets.CF_ACCOUNT_ID }}
+        command: publish --env resolver

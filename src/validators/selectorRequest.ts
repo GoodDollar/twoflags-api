@@ -63,7 +63,10 @@ export function validateSelectorRequest(data: any) {
           if (data.label.length > 100) {
             errors++
             if (validate.errors === null) validate.errors = []
-            validate.errors.push({ field: 'data.label', message: 'has longer length than allowed' })
+            validate.errors.push({
+              field: 'data.label',
+              message: 'has longer length than allowed'
+            })
           }
         }
       }
@@ -76,7 +79,10 @@ export function validateSelectorRequest(data: any) {
           if (data.value.length > 100) {
             errors++
             if (validate.errors === null) validate.errors = []
-            validate.errors.push({ field: 'data.value', message: 'has longer length than allowed' })
+            validate.errors.push({
+              field: 'data.value',
+              message: 'has longer length than allowed'
+            })
           }
         }
       }
