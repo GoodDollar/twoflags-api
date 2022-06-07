@@ -1,0 +1,25 @@
+name = "twoflags"
+type = "javascript"
+main = "./build/index.js"
+workers_dev = true
+compatibility_date = "2022-04-05"
+
+[env.api]
+kv-namespaces = [
+  { binding = "ENVIRONMENTS", id = "fee2c8cb36d94712869a024dc2f035fa" },
+	{ binding = "APIKEYS", id = "9bb9b1d2e82144a885826ab85d638b82" },
+	{ binding = "APIKEY", id = "9a38f7dcc16146abbc765accff49e547" },
+	{ binding = "FLAGS", id = "88f0ee824b2a4290ab85f8aded95bde8" },
+	{ binding = "NAMESPACES", id = "ebedd937a9ae4bd89fee09c662f4f612" },
+	{ binding = "SEGMENTS", id = "44edda9f53d248399ffed8127ac878e0" },
+	{ binding = "SELECTORS", id = "a2b773994d264707bd57b12481db22ad" },
+	{ binding = "ACCOUNTS", id = "451a34b0698d4183b3056baeb3ace931" },
+	{ binding = "VALUES", id = "21132ac21ca741ec9123edf4ab22477f" },
+	{ binding = "RESOLVER", id = "2f6c547654d743c7b5145d86bea6461b" }
+]
+
+[env.resolver]
+kv-namespaces = [
+	{ binding = "SEGMENTS", id = "44edda9f53d248399ffed8127ac878e0" },
+	{ binding = "RESOLVER", id = "2f6c547654d743c7b5145d86bea6461b" }
+]
