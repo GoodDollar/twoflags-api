@@ -19,4 +19,4 @@ It supports:
   - React SDK
   - API Documentation With OpenAPI 3.0 spec.
   
-To install on your own Cloudflare Account follow the steps in [INSTALL.md](https://github.com/GoodDollar/two-flags/blob/main/INSTALL.md).
+To install on your own Cloudflare Account follow the steps in [INSTALL.md](https://github.com/GoodDollar/twoflags-api/blob/master/INSTALL.md).
