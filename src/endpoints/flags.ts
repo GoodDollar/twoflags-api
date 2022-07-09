@@ -18,8 +18,9 @@ export async function getFlags(context: HTTPContext) {
 }
 
 export async function createFlag(context: HTTPContext) {
-  if (!validateFlag(context.body)) {
-    return new Response(null, withStatus(400))
+  const { errors } = validateFlag(context.body)
+  if (errors && errors.length) {
+    return new Response(JSON.stringify(errors), withStatus(400))
   }
 
   const flags: Array<any> = (await FLAGS.get(context.user.sub, 'json')) || []
@@ -29,7 +30,10 @@ export async function createFlag(context: HTTPContext) {
     flags[existingIndex] = context.body
   } else {
     if (flags.length >= MAX_FLAGS) {
-      return new Response(null, withStatus(412))
+      return new Response(
+        JSON.stringify({ error: `Max amount of flags achieved (${MAX_FLAGS})` }),
+        withStatus(412)
+      )
     }
 
     flags.push(context.body)
@@ -45,7 +49,10 @@ export async function deleteFlag(context: HTTPContext) {
 
   const flag = flags.find(f => f.id === context.body.id)
   if (!flag) {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({ error: `You are trying to delete unexisted flag ${context.body.id}` }),
+      withStatus(404)
+    )
   }
 
   const remainderFlags = flags.filter(f => f.id !== context.body.id)
@@ -87,15 +94,19 @@ export async function deleteFlag(context: HTTPContext) {
 }
 
 export async function updateFlag(context: HTTPContext) {
-  if (!validateFlagUpdate(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateFlagUpdate(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const flags: Array<any> = (await FLAGS.get(context.user.sub, 'json')) || []
 
   const existingIndex = flags.findIndex(f => f.id === context.body.id)
   if (existingIndex < 0) {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({ error: `You are trying to updated unexisted flag ${context.body.id}` }),
+      withStatus(404)
+    )
   }
 
   const previousFlagDef = flags[existingIndex]
@@ -169,8 +180,9 @@ export async function updateFlag(context: HTTPContext) {
 }
 
 export async function updateSelector(context: HTTPContext) {
-  if (!validateSelectorRequest(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateSelectorRequest(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const selectorsOp = (selectors: Array<any>) => {
@@ -219,7 +231,7 @@ export async function updateSelector(context: HTTPContext) {
 export async function getSelectors(context: HTTPContext) {
   const id = context.query && context.query.get('id')
   if (!id) {
-    return new Response(null, withStatus(400))
+    return new Response(JSON.stringify({ error: 'Did not found id in query' }), withStatus(400))
   }
 
   const selectors: Array<any> = (await SELECTORS.get(`${context.user.sub}-${id}`, 'json')) || []
@@ -238,7 +250,7 @@ export async function deleteSelector(context: HTTPContext) {
   const selectors: Array<any> = (await SELECTORS.get(selectorId, 'json')) || []
 
   if (context.body.index >= selectors.length) {
-    return new Response(null, withStatus(400))
+    return new Response(JSON.stringify({ error: 'Did not found selector id' }), withStatus(400))
   }
 
   const remainderSelectors = selectors

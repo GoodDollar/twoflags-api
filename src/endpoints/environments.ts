@@ -16,8 +16,9 @@ export async function getEnvironments(context: HTTPContext) {
 }
 
 export async function createEnvironment(context: HTTPContext) {
-  if (!validateEnvironment(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateEnvironment(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const environments: Array<any> = (await ENVIRONMENTS.get(context.user.sub, 'json')) || []
@@ -27,7 +28,10 @@ export async function createEnvironment(context: HTTPContext) {
     environments[existingIndex] = context.body
   } else {
     if (environments.length >= MAX_ENVS) {
-      return new Response(null, withStatus(412))
+      return new Response(
+        JSON.stringify({ erorr: `Max amount of environments achieved (${MAX_ENVS})` }),
+        withStatus(412)
+      )
     }
 
     environments.push(context.body)
@@ -39,8 +43,9 @@ export async function createEnvironment(context: HTTPContext) {
 }
 
 export async function updateEnvironment(context: HTTPContext) {
-  if (!validateEnvironmentUpdate(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateEnvironmentUpdate(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const environments: Array<any> = (await ENVIRONMENTS.get(context.user.sub, 'json')) || []
@@ -48,7 +53,12 @@ export async function updateEnvironment(context: HTTPContext) {
   const existingIndex = environments.findIndex(f => f.id === context.body.id)
 
   if (existingIndex < 0) {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({
+        error: `You are trying to update unexisted environment ${context.body.id}`
+      }),
+      withStatus(404)
+    )
   }
 
   const previousEnvironmentDef = environments[existingIndex]
@@ -94,7 +104,12 @@ export async function deleteEnvironment(context: HTTPContext) {
 
   const environment = environments.find(env => env.id === context.body.id)
   if (!environment) {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({
+        error: `You are trying to delete unexisted environment ${context.body.id}`
+      }),
+      withStatus(404)
+    )
   }
 
   const remainderEnvironments = environments.filter(env => env.id !== context.body.id)

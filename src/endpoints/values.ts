@@ -4,7 +4,7 @@ import { KVNamespace } from '@cloudflare/workers-types'
 
 export async function getValues(context: HTTPContext) {
   if (!context.query) {
-    return new Response(null, withStatus(400))
+    return new Response(JSON.stringify({ error: `Did not recieve query` }), withStatus(400))
   }
 
   const env = context.query.get('env')
@@ -21,8 +21,9 @@ export interface SelectorValue {
 export type FlagValue = string | number | boolean | SelectorValue
 
 export async function updateValue(context: HTTPContext) {
-  if (!validateValueUpdate(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateValueUpdate(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
   const flags: Array<any> = (await FLAGS.get(context.user.sub, 'json')) || []
   const flag = flags.find(f => f.id === context.body.id)
@@ -50,7 +51,10 @@ export async function updateValue(context: HTTPContext) {
   )
 
   if (!opStatus) {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({ error: 'Did not found namespace or environment' }),
+      withStatus(404)
+    )
   }
 
   if (context.logging) {

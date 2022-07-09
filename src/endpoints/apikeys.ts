@@ -27,7 +27,10 @@ export async function createAPIKey(context: HTTPContext) {
   const apiKeys: Array<any> = (await APIKEYS.get(context.user.sub, 'json')) || []
 
   if (apiKeys.length >= MAX_APIKEYS) {
-    return new Response(null, withStatus(412))
+    return new Response(
+      JSON.stringify({ error: `Max amount of api keys achieved (${MAX_APIKEYS})` }),
+      withStatus(412)
+    )
   }
 
   const key: any = {

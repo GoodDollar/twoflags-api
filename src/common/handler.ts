@@ -16,19 +16,22 @@ export const _handleRequest = (handlers: { [key: string]: HTTPHandler }) =>
     }
 
     // From here on all endpoints must be secured
-    const { valid, payload } = await isValidAPIKey(request)
+    const { valid, payload, error } = await isValidAPIKey(request)
     if (!valid) {
-      return new Response(null, withStatus(403))
+      return new Response(JSON.stringify({ error }), withStatus(403))
     }
 
     const user: any = await ACCOUNTS.get(payload.sub, 'json')
     if (!user) {
-      return new Response(null, withStatus(403))
+      return new Response(JSON.stringify({ error }), withStatus(403))
     }
 
     const methodPathHandler = handlers[`${request.method}-${url.pathname}`]
     if (!methodPathHandler) {
-      return new Response(null, withStatus(404))
+      return new Response(
+        JSON.stringify({ error: `Did not found endpoint ${request.method}-${url.pathname}` }),
+        withStatus(404)
+      )
     }
 
     // GET

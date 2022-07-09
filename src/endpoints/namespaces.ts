@@ -16,8 +16,9 @@ export async function getNamespaces(context: HTTPContext) {
 }
 
 export async function createNamespace(context: HTTPContext) {
-  if (!validateNamespace(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateNamespace(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const namespaces: Array<any> = (await NAMESPACES.get(context.user.sub, 'json')) || []
@@ -27,7 +28,10 @@ export async function createNamespace(context: HTTPContext) {
     namespaces[existingIndex] = context.body
   } else {
     if (namespaces.length >= MAX_NAMESPACES) {
-      return new Response(null, withStatus(412))
+      return new Response(
+        JSON.stringify({ error: `Max amount of namespaces achieved ${MAX_NAMESPACES}` }),
+        withStatus(412)
+      )
     }
 
     namespaces.push(context.body)
@@ -39,8 +43,9 @@ export async function createNamespace(context: HTTPContext) {
 }
 
 export async function updateNamespace(context: HTTPContext) {
-  if (!validateNamespaceUpdate(context.body)) {
-    return new Response(null, withStatus(400))
+  const validate = validateNamespaceUpdate(context.body)
+  if (validate.errors && validate.errors.length) {
+    return new Response(JSON.stringify(validate.errors), withStatus(400))
   }
 
   const namespaces: Array<any> = (await NAMESPACES.get(context.user.sub, 'json')) || []
@@ -52,7 +57,10 @@ export async function updateNamespace(context: HTTPContext) {
       ...context.body
     }
   } else {
-    return new Response(null, withStatus(404))
+    return new Response(
+      JSON.stringify({ error: `Can not find namespace id - ${context.body.id}` }),
+      withStatus(404)
+    )
   }
 
   await NAMESPACES.put(context.user.sub, JSON.stringify(namespaces))

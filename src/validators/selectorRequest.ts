@@ -3,10 +3,8 @@ export function validateSelectorRequest(data: any) {
   if (data === undefined) data = null
   const validate: { errors: any } = { errors: null }
   validate.errors = null
-  var errors = 0
   if (data !== undefined) {
     if (!(typeof data === 'object' && data && !Array.isArray(data))) {
-      errors++
       if (validate.errors === null) validate.errors = []
       validate.errors.push({ field: 'data', message: 'is the wrong type' })
     } else {
@@ -18,19 +16,16 @@ export function validateSelectorRequest(data: any) {
           keys1[i] !== 'label' &&
           keys1[i] !== 'value'
         ) {
-          errors++
           if (validate.errors === null) validate.errors = []
           validate.errors.push({ field: 'data', message: 'has additional properties' })
         }
       }
       if (data.id !== undefined) {
         if (!(typeof data.id === 'string')) {
-          errors++
           if (validate.errors === null) validate.errors = []
           validate.errors.push({ field: 'data.id', message: 'is the wrong type' })
         } else {
           if (data.id.length > 60) {
-            errors++
             if (validate.errors === null) validate.errors = []
             validate.errors.push({ field: 'data.id', message: 'has longer length than allowed' })
           }
@@ -38,7 +33,6 @@ export function validateSelectorRequest(data: any) {
       }
       if (data.op !== undefined) {
         if (!(typeof data.op === 'string')) {
-          errors++
           if (validate.errors === null) validate.errors = []
           validate.errors.push({ field: 'data.op', message: 'is the wrong type' })
         } else {
@@ -48,7 +42,6 @@ export function validateSelectorRequest(data: any) {
             data.op !== 'shift' &&
             data.op !== 'unshift'
           ) {
-            errors++
             if (validate.errors === null) validate.errors = []
             validate.errors.push({ field: 'data.op', message: 'must be an enum value' })
           }
@@ -56,12 +49,10 @@ export function validateSelectorRequest(data: any) {
       }
       if (data.label !== undefined) {
         if (!(typeof data.label === 'string')) {
-          errors++
           if (validate.errors === null) validate.errors = []
           validate.errors.push({ field: 'data.label', message: 'is the wrong type' })
         } else {
           if (data.label.length > 100) {
-            errors++
             if (validate.errors === null) validate.errors = []
             validate.errors.push({
               field: 'data.label',
@@ -72,12 +63,10 @@ export function validateSelectorRequest(data: any) {
       }
       if (data.value !== undefined) {
         if (!(typeof data.value === 'string')) {
-          errors++
           if (validate.errors === null) validate.errors = []
           validate.errors.push({ field: 'data.value', message: 'is the wrong type' })
         } else {
           if (data.value.length > 100) {
-            errors++
             if (validate.errors === null) validate.errors = []
             validate.errors.push({
               field: 'data.value',
@@ -88,5 +77,5 @@ export function validateSelectorRequest(data: any) {
       }
     }
   }
-  return errors === 0
+  return validate
 }
